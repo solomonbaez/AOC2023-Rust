@@ -1,14 +1,9 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-// we can do some basic pattern matching -> regardless of whether we implement regex matching
-// in this case, we know our data follows the following structure:
-// 'Game', 'game_id<usize>',':','count_0_0','color_0_0'...'count_0_n', 'color_0_n', ';',
-//                              'count_1_0, color_1_0'...'count_j_j', 'color_j_j',
+// 'Game', 'game_id<usize>',':','count_0_0','color_0_0'...'count_0_n', 'color_0_n', ';'...'count_j_j', 'color_j_j',
 //
-// NOTE: the games have sets elucidated by ';'
-//
-// The question is: Determine which games would have been possible
+// question: determine which games would have been possible
 // if the bag had been loaded with only 12 red cubes, 13 green cubes, and 14 blue cubes.
 // What is the sum of the IDs of those  games?
 //
@@ -18,6 +13,7 @@ fn main() {
         .lines()
         .map(|line| line.unwrap())
         .collect();
+
     parse_game(data);
 }
 
@@ -44,10 +40,37 @@ impl GameResults {
 // we can try to make a deterministic data structure for the game
 // -> game_id
 fn parse_game(data: Vec<String>) {
-    let games: Vec<&str> = data
+    let games: Vec<Vec<&str>> = data
         .iter()
-        .map(|games| games.split(";").next().unwrap())
+        .map(|sections| {
+            let game: Vec<&str> = sections.split(";").collect();
+            game
+        })
         .collect();
 
-    println!("{:?}", games);
+    let valid_games: Vec<Vec<&str>> = games
+        .iter()
+        .filter_map(|game| {
+            if let Some(valid) = valid_game(game.to_vec()) {
+                Some(valid)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    println!("{:?}", valid_games);
+}
+
+fn valid_game(data: Vec<&str>) -> Option<Vec<&str>> {
+    let substring: Vec<Vec<&str>> = data
+        .iter()
+        .map(|sections| {
+            let game: Vec<&str> = sections.split(" ").collect();
+            game
+        })
+        .collect();
+
+    println!("{:?}", substring);
+    return Some(data);
 }
