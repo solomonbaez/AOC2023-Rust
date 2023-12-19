@@ -13,7 +13,7 @@ use std::io::{BufRead, BufReader};
 // What is the sum of the IDs of those  games?
 //
 fn main() {
-    let file = File::open("data.txt").unwrap();
+    let file = File::open("src/data.txt").unwrap();
     let data: Vec<String> = BufReader::new(file)
         .lines()
         .map(|line| line.unwrap())
@@ -44,5 +44,10 @@ impl GameResults {
 // we can try to make a deterministic data structure for the game
 // -> game_id
 fn parse_game(data: Vec<String>) {
-    _ = data.iter().map(|games| games.split(";"));
+    let games: Vec<&str> = data
+        .iter()
+        .map(|games| games.split(";").next().unwrap())
+        .collect();
+
+    println!("{:?}", games);
 }
