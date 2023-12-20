@@ -14,63 +14,25 @@ fn main() {
         .map(|line| line.unwrap())
         .collect();
 
-    parse_game(data);
-}
-
-struct GameResults {
-    id: usize,
-    red: usize,
-    green: usize,
-    blue: usize,
-}
-
-const BAG: GameResults = GameResults {
-    id: 0,
-    red: 12,
-    green: 13,
-    blue: 14,
-};
-
-impl GameResults {
-    fn is_valid(&self) -> bool {
-        self.red <= BAG.red && self.green <= BAG.green && self.blue <= BAG.blue
-    }
-}
-
-// we can try to make a deterministic data structure for the game
-// -> game_id
-fn parse_game(data: Vec<String>) {
     let games: Vec<Vec<&str>> = data
         .iter()
-        .map(|sections| {
-            let game: Vec<&str> = sections.split(";").collect();
+        .map(|line| {
+            let game = line.split(";").collect();
             game
         })
         .collect();
 
-    let valid_games: Vec<Vec<&str>> = games
-        .iter()
-        .filter_map(|game| {
-            if let Some(valid) = valid_game(game.to_vec()) {
-                Some(valid)
-            } else {
-                None
-            }
-        })
-        .collect();
+    let mut count = 0;
+    games.iter().for_each(|game| {
+        if let Some(id) = is_valid(game) {
+            count += id;
+        }
+    });
 
-    println!("{:?}", valid_games);
+    println!("{}", count);
 }
 
-fn valid_game(data: Vec<&str>) -> Option<Vec<&str>> {
-    let substring: Vec<Vec<&str>> = data
-        .iter()
-        .map(|sections| {
-            let game: Vec<&str> = sections.split(" ").collect();
-            game
-        })
-        .collect();
-
-    println!("{:?}", substring);
-    return Some(data);
+fn is_valid(game: &Vec<&str>) -> Option<usize> {
+    println!("{:?}", game);
+    Some(1)
 }
