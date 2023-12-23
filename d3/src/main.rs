@@ -8,7 +8,7 @@ fn main() {
         .map(|line| line.unwrap().chars().collect())
         .collect();
 
-    let mut parts: Vec<Vec<i32>> = vec![vec![0; data[0].len()]; data.len()];
+    let mut parts: Vec<Vec<i32>> = vec![vec![-1; data[0].len()]; data.len()];
     let sum: i32 = data
         .iter()
         .enumerate()
@@ -31,14 +31,20 @@ fn main() {
     println!("{}", sum);
 }
 
-//TODO!() change sum logic to chain together full number sequences
+//TODO!() condense this logic within the main function -> this could be captured in a condensed closure
 fn find_neighbors(row: usize, col: usize, data: &Vec<Vec<char>>, parts: &mut Vec<Vec<i32>>) -> i32 {
     //helper closure
     let mut validate_neighbors = |row: usize, col: usize| {
-        if data[row][col].is_numeric() && parts[row][col] == 0 {
-            // println!("{:?}", visit);
+        let mut i = col;
+        while i < data.len() && data[row][i].is_numeric() && parts[row][i] == -1 {
             parts[row][col] = data[row][col].to_digit(10).unwrap() as i32;
-            // 1
+            i += 1;
+        }
+
+        let mut j = col - 1;
+        while j > 0 && data[row][j].is_numeric() && parts[row][j] == -1 {
+            parts[row][j] = data[row][j].to_digit(10).unwrap() as i32;
+            j -= 1;
         }
     };
 
@@ -58,12 +64,13 @@ fn find_neighbors(row: usize, col: usize, data: &Vec<Vec<char>>, parts: &mut Vec
         .iter()
         .for_each(|case| validate_neighbors(case.0, case.1));
 
+    println!("{:?}", parts);
     let mut sum = 0;
     let mut delta = 1;
     for i in (0..parts[row].len()).rev() {
         sum += parts[row][i] * delta;
 
-        if parts[row][i] == 0 || (i > 0 && parts[row][i - 1] == 0) {
+        if parts[row][i] == -1 || (i > 0 && parts[row][i - 1] == -1) {
             delta = 1;
             continue;
         }
