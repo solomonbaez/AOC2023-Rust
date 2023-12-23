@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -9,7 +8,7 @@ fn main() {
         .map(|line| line.unwrap().chars().collect())
         .collect();
 
-    let mut visit = HashSet::new();
+    let mut parts: Vec<Vec<i32>> = vec![vec![0; data[0].len()]; data.len()];
     let sum: i32 = data
         .iter()
         .enumerate()
@@ -19,7 +18,7 @@ fn main() {
                 .enumerate()
                 .filter_map(|(col, &c)| match !c.is_alphanumeric() && c != '.' {
                     true => {
-                        return Some(find_neighbors(row, col, &data, &mut visit));
+                        return Some(find_neighbors(row, col, &data, &mut parts));
                     }
                     false => None,
                 })
@@ -32,30 +31,45 @@ fn main() {
     println!("{}", sum);
 }
 
-fn find_neighbors(
-    row: usize,
-    col: usize,
-    data: &Vec<Vec<char>>,
-    visit: &mut HashSet<(usize, usize)>,
-) -> i32 {
+//TODO!() change sum logic to chain together full number sequences
+fn find_neighbors(row: usize, col: usize, data: &Vec<Vec<char>>, parts: &mut Vec<Vec<i32>>) -> i32 {
     //helper closure
-    let validate_neighbors = |row: usize, col: usize| {
-        if data[row][col].is_numeric() && !visit.contains(&(row, col)) {
-            data[row][col].to_digit(10).unwrap()
-        } else {
-            0
+    let mut validate_neighbors = |row: usize, col: usize| {
+        if data[row][col].is_numeric() && parts[row][col] == 0 {
+            // println!("{:?}", visit);
+            parts[row][col] = data[row][col].to_digit(10).unwrap() as i32;
+            // 1
         }
     };
 
+    //adj and diag
     let neighbors: Vec<(usize, usize)> = vec![
         (row + 1, col),
         (row - 1, col),
         (row, col + 1),
         (row, col - 1),
+        (row + 1, col + 1),
+        (row + 1, col - 1),
+        (row - 1, col + 1),
+        (row - 1, col - 1),
     ];
 
     neighbors
         .iter()
-        .map(|case| validate_neighbors(case.0, case.1) as i32)
-        .sum()
+        .for_each(|case| validate_neighbors(case.0, case.1));
+
+    let mut sum = 0;
+    let mut delta = 1;
+    for i in (0..parts[row].len()).rev() {
+        sum += parts[row][i] * delta;
+
+        if parts[row][i] == 0 || (i > 0 && parts[row][i - 1] == 0) {
+            delta = 1;
+            continue;
+        }
+
+        delta *= 10;
+    }
+
+    return sum;
 }
