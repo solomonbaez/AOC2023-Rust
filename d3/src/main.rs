@@ -37,13 +37,13 @@ fn find_neighbors(row: usize, col: usize, data: &Vec<Vec<char>>, parts: &mut Vec
     let mut validate_neighbors = |row: usize, col: usize| {
         let mut i = col;
         while i < data.len() && data[row][i].is_numeric() && parts[row][i] == -1 {
-            parts[row][col] = data[row][col].to_digit(10).unwrap() as i32;
+            parts[row][i] = data[row][i].to_digit(10).unwrap() as i32;
             i += 1;
         }
 
-        let mut j = col - 1;
-        while j > 0 && data[row][j].is_numeric() && parts[row][j] == -1 {
-            parts[row][j] = data[row][j].to_digit(10).unwrap() as i32;
+        let mut j = (col - 1) as i32;
+        while j >= 0 && data[row][j as usize].is_numeric() && parts[row][j as usize] == -1 {
+            parts[row][j as usize] = data[row][j as usize].to_digit(10).unwrap() as i32;
             j -= 1;
         }
     };
@@ -64,18 +64,24 @@ fn find_neighbors(row: usize, col: usize, data: &Vec<Vec<char>>, parts: &mut Vec
         .iter()
         .for_each(|case| validate_neighbors(case.0, case.1));
 
-    println!("{:?}", parts);
+    if row == 1 {
+        println!("{:?}", parts[0]);
+    }
+    let rowlen = parts[row].len();
+    let rowparts = &parts[row][col..rowlen];
     let mut sum = 0;
     let mut delta = 1;
-    for i in (0..parts[row].len()).rev() {
-        sum += parts[row][i] * delta;
-
-        if parts[row][i] == -1 || (i > 0 && parts[row][i - 1] == -1) {
+    for &part in rowparts.iter().rev() {
+        if part == -1 {
             delta = 1;
             continue;
-        }
+        } else {
+            let cur = part * delta;
+            // println!("{cur}");
+            sum += cur;
 
-        delta *= 10;
+            delta *= 10;
+        }
     }
 
     return sum;
