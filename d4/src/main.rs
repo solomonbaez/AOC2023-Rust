@@ -18,31 +18,18 @@ fn count_matches(card: &Vec<&str>) -> i32 {
     let targets: Vec<&str> = clean_card((card[0].split(":").collect::<Vec<&str>>())[1]);
     let numbers: Vec<&str> = clean_card(card[1]);
 
-    // println!("targets: {:?}, numbers: {:?}", targets, numbers);
-
-    let sum: i32 = numbers
+    let mut sum: i32 = 0;
+    numbers
         .iter()
-        .map(|number| {
-            if targets.contains(number) {
-                let mut delta = 1;
-                let sub_sum: i32 = number
-                    .chars()
-                    .rev()
-                    .map(|digit| {
-                        let base_10 = (digit.to_digit(10).unwrap() as i32) * delta;
-                        delta *= 10;
-                        base_10
-                    })
-                    .sum::<i32>();
-                sub_sum
-            } else {
-                0
-            }
-        })
-        .sum();
+        .for_each(|number| match targets.contains(number) {
+            true => match sum == 0 {
+                true => sum += 1,
+                false => sum *= 2,
+            },
+            false => (),
+        });
 
-    // println!("{:?}", sum);
-    sum //TODO!() CURRENTLY TOO HIGH -> could be duplicate matches
+    sum
 }
 
 fn clean_card(card: &str) -> Vec<&str> {
