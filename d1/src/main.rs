@@ -26,11 +26,11 @@ fn parse_line(line: String) -> i32 {
             true => Some(line_chars[i].to_digit(10).unwrap() as i32),
             false => {
                 for (number, digit) in DIGITS.iter().enumerate() {
-                    if reverse && line[0..i + 1].contains(digit) {
-                        Some((number + 1) as i32)
-                    } else if {
-                        continue;
-                    };
+                    if (!reverse && line[0..i + 1].contains(digit))
+                        || (reverse && line[i..line.len()].contains(digit))
+                    {
+                        return Some((number + 1) as i32);
+                    }
                 }
 
                 None
@@ -41,9 +41,6 @@ fn parse_line(line: String) -> i32 {
     for i in 0..line.len() {
         if let Some(key) = get_keys(i, false) {
             first = key;
-        }
-
-        if first != -1 {
             break;
         }
     }
@@ -51,14 +48,9 @@ fn parse_line(line: String) -> i32 {
     for j in (0..line.len()).rev() {
         if let Some(key) = get_keys(j, true) {
             second = key;
-        }
-
-        if second != -1 {
             break;
         }
     }
-
-    println!("{first}{second}");
 
     if second == -1 {
         first
